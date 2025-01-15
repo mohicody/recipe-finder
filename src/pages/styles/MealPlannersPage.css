@@ -1,0 +1,15 @@
+.meal-planner-page {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .meal-planner-page h1 {
+    color: #007bff;
+    margin-bottom: 20px;
+  }
+  
+  .meal-planner-page p {
+    font-size: 1.2rem;
+    color: #555;
+  }
+  
