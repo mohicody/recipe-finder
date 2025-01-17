@@ -1,31 +1,92 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
-import MealPlannerPage from './pages/MealPlannerPage';
 import Favorites from './pages/Favorites';
+import MealPlannerPage from './pages/MealPlannerPage';
+import AllRecipes from './pages/AllRecipes';
 import RecipeDetails from './pages/RecipeDetails';
 import './App.css'; // Import main CSS file
 
-
-const App = () => {
-  return (
-    <Router>
-      <div className="App min-h-screen flex flex-col relative">
-        <Header className="fixed top-0 left-0 right-0 z-50" />
-        <main className="flex-grow mt-16 mb-16">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/meal-planner" element={<MealPlannerPage />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/recipe/:id" element={<RecipeDetails />} />
-          </Routes>
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <Home />
         </main>
-        <Footer className="fixed bottom-0 left-0 right-0 z-50" />
+        <Footer />
       </div>
-    </Router>
-  );
-};
+    ),
+  },
+  {
+    path: "/favorites",
+    element: (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <Favorites />
+        </main>
+        <Footer />
+      </div>
+    ),
+  },
+  {
+    path: "/meal-planner",
+    element: (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <MealPlannerPage />
+        </main>
+        <Footer />
+      </div>
+    ),
+  },
+  {
+    path: "/all-recipes",
+    element: (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <AllRecipes />
+        </main>
+        <Footer />
+      </div>
+    ),
+  },
+  {
+    path: "/recipes",
+    element: <Navigate to="/all-recipes" replace />,
+  },
+  {
+    path: "/recipe/:id",
+    element: (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <RecipeDetails />
+        </main>
+        <Footer />
+      </div>
+    ),
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
+  },
+], {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+});
+
+function App() {
+  return <RouterProvider router={router} />;
+}
 
 export default App;

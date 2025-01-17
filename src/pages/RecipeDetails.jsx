@@ -1,39 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import { getRecipeById } from '../data/mockRecipes';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 const RecipeDetails = () => {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    const fetchRecipeDetails = async () => {
-      try {
-        const response = await axios.get(
-          `https://api.spoonacular.com/recipes/${id}/information`,
-          {
-            params: {
-              apiKey: 'e7a967127e3746ffac1ce1473af76d3d'
-            }
-          }
-        );
-        setRecipe(response.data);
-      } catch (err) {
-        setError('Failed to fetch recipe details. Please try again later.');
-      } finally {
-        setLoading(false);
+    window.scrollTo(0, 0);
+    try {
+      const recipeData = getRecipeById(id);
+      if (recipeData) {
+        setRecipe(recipeData);
+        // Check if recipe is in favorites
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        setIsFavorite(favorites.some(fav => fav.id === parseInt(id)));
+      } else {
+        setError('Recipe not found');
       }
-    };
-
-    fetchRecipeDetails();
+    } catch (err) {
+      setError('Failed to load recipe details');
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  const toggleFavorite = () => {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    
+    if (isFavorite) {
+      const newFavorites = favorites.filter(fav => fav.id !== recipe.id);
+      localStorage.setItem('favorites', JSON.stringify(newFavorites));
+    } else {
+      favorites.push({
+        id: recipe.id,
+        title: recipe.title,
+        image: recipe.image,
+        readyInMinutes: recipe.readyInMinutes,
+        servings: recipe.servings,
+        summary: recipe.summary
+      });
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+    
+    setIsFavorite(!isFavorite);
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-gray-600">Loading...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
@@ -57,11 +77,23 @@ const RecipeDetails = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <img
-          src={recipe.image}
-          alt={recipe.title}
-          className="w-full h-64 object-cover"
-        />
+        <div className="relative">
+          <img
+            src={recipe.image}
+            alt={recipe.title}
+            className="w-full h-64 object-cover"
+          />
+          <button
+            onClick={toggleFavorite}
+            className="absolute top-4 right-4 p-3 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200"
+          >
+            {isFavorite ? (
+              <FaHeart className="text-red-500 w-6 h-6" />
+            ) : (
+              <FaRegHeart className="text-gray-500 w-6 h-6" />
+            )}
+          </button>
+        </div>
         <div className="p-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-4">{recipe.title}</h1>
           
@@ -77,6 +109,11 @@ const RecipeDetails = () => {
           </div>
 
           <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-3">Summary</h2>
+            <p className="text-gray-600">{recipe.summary}</p>
+          </div>
+
+          <div className="mb-6">
             <h2 className="text-xl font-semibold mb-3">Ingredients</h2>
             <ul className="list-disc pl-5 space-y-2">
               {recipe.extendedIngredients.map((ingredient) => (
@@ -89,10 +126,15 @@ const RecipeDetails = () => {
 
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-3">Instructions</h2>
-            <div 
-              className="text-gray-600 space-y-4"
-              dangerouslySetInnerHTML={{ __html: recipe.instructions }}
-            />
+            <div className="text-gray-600 space-y-4">
+              {recipe.instructions.split('\n').map((instruction, index) => (
+                instruction.trim() && (
+                  <p key={index} className="ml-4">
+                    {instruction.trim()}
+                  </p>
+                )
+              ))}
+            </div>
           </div>
 
           {recipe.diets && recipe.diets.length > 0 && (

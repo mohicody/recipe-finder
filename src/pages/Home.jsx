@@ -1,68 +1,184 @@
-import React from 'react';
-import SearchBar from '../components/SearchBar';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FaSearch, FaHeart, FaUtensils, FaBookOpen, FaArrowRight } from 'react-icons/fa';
+import RecipeCard from '../components/RecipeCard';
+import { featuredRecipes, allRecipes } from '../data/mockRecipes';
 
-const Home = () => (
-  <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-    <div className="relative min-h-screen">
-      <div 
-        className="fixed inset-0 bg-cover bg-center opacity-5" 
-        style={{ 
-          backgroundImage: "url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop')",
-          minHeight: '100vh',
-          backgroundAttachment: 'fixed'
-        }}>
-      </div>
-      <div className="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h1 className="text-5xl font-extrabold text-gray-800 mb-6 tracking-tight">
-              Find Delicious Recipes
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed">
-              Discover thousands of recipes from around the world. Search by ingredients, cuisine, or dietary preferences.
-            </p>
-            <div className="flex justify-center">
-              <div className="w-full max-w-2xl">
-                <SearchBar />
+const Home = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchResults, setSearchResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  
+  // Get search query from URL
+  const searchQuery = searchParams.get('search') || '';
+
+  // Effect to handle search when URL changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const performSearch = () => {
+      if (searchQuery.trim()) {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          // Search in mock data
+          const results = allRecipes.filter(recipe => 
+            recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            recipe.summary.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+
+          setSearchResults(results);
+          setLoading(false);
+        } catch (err) {
+          console.error('Error searching recipes:', err);
+          setError('Something went wrong. Please try again.');
+          setLoading(false);
+        }
+      } else {
+        // Clear results when search query is empty
+        setSearchResults(null);
+      }
+    };
+
+    performSearch();
+  }, [searchQuery]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const query = formData.get('search').trim();
+    
+    if (query) {
+      // Update URL with search query
+      setSearchParams({ search: query });
+    } else {
+      // Clear search params if query is empty
+      setSearchParams({});
+    }
+  };
+
+  const handleViewAllRecipes = () => {
+    navigate('/all-recipes');
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Hero Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+            Discover <span className="text-blue-600">Delicious</span> Recipes
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Find and save your favorite recipes from our collection of delicious meals
+          </p>
+          
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
+            <div className="flex gap-4">
+              <input
+                type="text"
+                name="search"
+                placeholder="Search for recipes..."
+                defaultValue={searchQuery}
+                className="flex-1 px-6 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="submit"
+                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <FaSearch className="inline mr-2" />
+                Search
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      {/* Search Results Section */}
+      {searchQuery && (
+        <section className="py-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Search Results for "{searchQuery}"
+              </h2>
+            </div>
+            
+            {loading ? (
+              <div className="text-center py-12">Loading...</div>
+            ) : error ? (
+              <div className="text-center text-red-500 py-12">{error}</div>
+            ) : searchResults?.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {searchResults.map(recipe => (
+                  <RecipeCard key={recipe.id} recipe={recipe} />
+                ))}
               </div>
+            ) : (
+              <div className="text-center text-gray-500 py-12">
+                No recipes found. Try a different search term.
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Featured Recipes Section */}
+      {!searchQuery && (
+        <section className="py-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3">
+              <h2 className="text-2xl font-bold text-gray-900 text-center sm:text-left">Featured Recipes</h2>
+              <button
+                onClick={handleViewAllRecipes}
+                className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                View All Recipes
+                <FaArrowRight className="text-sm" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredRecipes.map(recipe => (
+                <RecipeCard key={recipe.id} recipe={recipe} />
+              ))}
             </div>
           </div>
-          
-          <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto px-4">
-            <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
-              <div className="text-blue-500 mb-4">
-                <svg className="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+        </section>
+      )}
+
+      {/* Features Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                <FaUtensils className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">Easy Search</h3>
-              <p className="text-gray-600 text-center">Find recipes by ingredients, cuisine type, or dietary restrictions</p>
+              <h3 className="text-lg font-semibold mb-2">Easy to Cook</h3>
+              <p className="text-gray-600">Step-by-step instructions for perfect results</p>
             </div>
-            
-            <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
-              <div className="text-green-500 mb-4">
-                <svg className="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                <FaHeart className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">Meal Planning</h3>
-              <p className="text-gray-600 text-center">Plan your weekly meals with our easy-to-use meal planner</p>
+              <h3 className="text-lg font-semibold mb-2">Save Favorites</h3>
+              <p className="text-gray-600">Keep your favorite recipes in one place</p>
             </div>
-            
-            <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
-              <div className="text-red-500 mb-4">
-                <svg className="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                <FaBookOpen className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">Save Favorites</h3>
-              <p className="text-gray-600 text-center">Save your favorite recipes for quick access later</p>
+              <h3 className="text-lg font-semibold mb-2">Wide Selection</h3>
+              <p className="text-gray-600">Thousands of recipes to choose from</p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
-  </div>
-);
+  );
+};
 
 export default Home;

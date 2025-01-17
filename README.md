@@ -1,6 +1,6 @@
 # Recipe Finder
 
-A modern React application for discovering and exploring delicious recipes from around the world. Built with React, Tailwind CSS, and powered by the Spoonacular API.
+A modern React application for discovering and exploring delicious recipes from around the world. Built with React and Tailwind CSS.
 
 ## Live Demo
 
@@ -18,8 +18,7 @@ Visit the live site: [Recipe Finder](https://easy-recipe-finder.netlify.app/)
 
 - React.js
 - Tailwind CSS
-- Spoonacular API
-- Axios for API calls
+- Mock data for recipes
 - React Router for navigation
 
 ## Getting Started
@@ -44,12 +43,48 @@ npm start
 
 4. Open [http://localhost:3000](http://localhost:3000) to view it in your browser
 
+## Environment Setup
+
+Before running the project, you'll need to set up your environment variables:
+
+1. Create a `.env` file in the root directory
+2. Add your Spoonacular API key:
+```
+REACT_APP_SPOONACULAR_API_KEY=your_api_key_here
+```
+
+## Project Structure
+
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Page components
+├── data/          # Mock recipe data
+├── styles/        # CSS and style-related files
+├── utils/         # Utility functions
+└── App.js         # Main application component
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Contact
+
+Mohaddeseh Safari - [@mohicody](https://github.com/mohicody)
+
+Project Link: [https://github.com/mohicody/recipe-finder](https://github.com/mohicody/recipe-finder)
+
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
-- [Spoonacular API](https://spoonacular.com/food-api) for providing the recipe data
 - [Tailwind CSS](https://tailwindcss.com/) for the styling
 - [Create React App](https://github.com/facebook/create-react-app) for the project setup
+- [Spoonacular](https://spoonacular.com/) for recipe images used in the mock data
