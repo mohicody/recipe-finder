@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { allRecipes } from '../data/mockRecipes';
 
 const SearchBar = () => {
   const [query, setQuery] = useState(() => {
@@ -28,19 +28,20 @@ const SearchBar = () => {
     setError(null);
 
     try {
-      const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch`, {
-        params: { 
-          query, 
-          apiKey: 'e7a967127e3746ffac1ce1473af76d3d',
-          number: 9
-        },
-      });
-      setRecipes(response.data.results);
-      // Save search results and query to localStorage
-      localStorage.setItem('lastSearchResults', JSON.stringify(response.data.results));
+      // Filter recipes based on search query
+      const filteredRecipes = allRecipes.filter(recipe => 
+        recipe.title.toLowerCase().includes(query.toLowerCase())
+      );
+
+      setRecipes(filteredRecipes);
       localStorage.setItem('lastSearchQuery', query);
+      localStorage.setItem('lastSearchResults', JSON.stringify(filteredRecipes));
+
+      // Navigate to search results
+      navigate('/all-recipes', { state: { recipes: filteredRecipes } });
     } catch (err) {
-      setError('Failed to fetch recipes. Please try again later.');
+      setError('Error searching recipes');
+      console.error('Search error:', err);
     } finally {
       setLoading(false);
     }
@@ -99,8 +100,9 @@ const SearchBar = () => {
           <button 
             type="submit"
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-md hover:shadow-lg whitespace-nowrap"
+            disabled={loading}
           >
-            Search Recipes
+            {loading ? 'Searching...' : 'Search Recipes'}
           </button>
         </div>
       </form>
