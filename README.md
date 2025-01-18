@@ -5,6 +5,7 @@ A modern React application for discovering and exploring delicious recipes from 
 ## Live Demo
 
 Visit the live site: [Recipe Finder](https://easy-recipe-finder.netlify.app/)
+Website: https://easy-recipe-finder.netlify.app/
 
 ## Features
 
