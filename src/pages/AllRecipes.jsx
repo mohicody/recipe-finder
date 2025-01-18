@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import RecipeCard from '../components/RecipeCard';
 import { allRecipes } from '../data/mockRecipes';
 
@@ -7,7 +7,6 @@ const fallbackImage = 'https://via.placeholder.com/400x300?text=Recipe+Image';
 
 const AllRecipes = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

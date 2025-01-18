@@ -8,7 +8,6 @@ const MealPlannerPage = () => {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const mealTypes = ['Breakfast', 'Lunch', 'Dinner'];
   const initialMealPlan = days.reduce((acc, day) => ({ ...acc, [day]: mealTypes.reduce((acc, mealType) => ({ ...acc, [mealType]: null }), {}) }), {});
-  const fallbackImage = 'https://via.placeholder.com/400x300?text=Recipe+Image';
 
   const [mealPlan, setMealPlan] = useState(() => {
     const savedMealPlan = localStorage.getItem('mealPlan');
@@ -66,10 +65,6 @@ const MealPlannerPage = () => {
       }
     }));
     setShowModal(false);
-  };
-
-  const handleImageError = (e) => {
-    e.target.src = fallbackImage;
   };
 
   return (
